@@ -1,0 +1,55 @@
+{
+  "nodes": [
+    {
+      "id": "00_auth",
+      "label": "前置认证",
+      "required_upstream": [],
+      "allowed_next": ["01_fastexpr_parser"],
+      "required_outputs": ["outputs/auth_status.json"],
+      "blocks_on_failure": true
+    },
+    {
+      "id": "01_fastexpr_parser",
+      "label": "FastExpr 解析器",
+      "required_upstream": ["00_auth"],
+      "allowed_next": ["02_codegen"],
+      "required_outputs": ["outputs/strategy_spec.json"],
+      "agentic": true
+    },
+    {
+      "id": "02_codegen",
+      "label": "Python Alpha 代码生成",
+      "required_upstream": ["01_fastexpr_parser"],
+      "allowed_next": ["03_validate"],
+      "required_outputs": ["outputs/alphas.py"],
+      "self_heal_target": true
+    },
+    {
+      "id": "03_validate",
+      "label": "代码合规性验证",
+      "required_upstream": ["02_codegen"],
+      "allowed_next": ["04_simulation", "02_codegen"],
+      "required_outputs": ["outputs/validation_results.json"],
+      "max_ast_retries": 3
+    },
+    {
+      "id": "04_simulation",
+      "label": "平台回测",
+      "required_upstream": ["03_validate"],
+      "allowed_next": ["05_diagnosis"],
+      "required_outputs": ["outputs/simulation_results.json"],
+      "requires_budget": true,
+      "requires_resume_state": true
+    },
+    {
+      "id": "05_diagnosis",
+      "label": "诊断与自愈",
+      "required_upstream": ["04_simulation", "01_fastexpr_parser"],
+      "allowed_next": ["02_codegen", "BEST_K_BRANCH", "APPROVED"],
+      "required_outputs": ["outputs/diagnosis.json", "outputs/survivors.json"],
+      "max_iterations": 5,
+      "best_k_top": 3
+    }
+  ],
+  "terminal_nodes": ["APPROVED", "BEST_K_BRANCH"]
+}

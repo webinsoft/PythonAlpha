@@ -1,0 +1,16 @@
+{
+    "pipeline": {
+        "region": "USA",
+        "universe": "TOP3000",
+        "delay": "1"
+    },
+    "budgets": {
+        "max_simulation_count": 10,
+        "max_self_heal_iterations": 5
+    },
+    "thresholds": {
+        "min_sharpe": 1.58,
+        "min_fitness": 1.0,
+        "max_turnover": 0.5
+    }
+}
