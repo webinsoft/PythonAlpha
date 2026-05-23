@@ -1,0 +1,3 @@
+[submodule "wqb_cli"]
+	path = wqb_cli
+	url = https://github.com/untuitivist/wqb_cli.git
