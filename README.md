@@ -4,15 +4,20 @@ FastExpr → WQ Brain Python Alpha 自动化流水线。
 
 ## 架构
 
-```
-FastExpr / Alpha ID
-     │
-     ▼
-00_auth ──► 01_fastexpr_parser ──► 02_codegen ──► 03_validate ──► 04_simulation ──► 05_diagnosis
-    认证        解析 FastExpr          生成 Python        AST 验证          WQ 回测          路由决策
-                                    ▲                    │                   │               │
-                                    └──── 自愈迭代 ◄──────┘                   │               │
-                                                                             └──── 诊断反馈 ◄──┘
+```mermaid
+graph TD
+    Input[FastExpr / Alpha ID] --> Node0[00_auth 前置认证]
+    Node0 --> Node1[01_fastexpr_parser FastExpr解析]
+    Node1 --> Node2[02_codegen 代码生成]
+    Node2 --> Node3[03_validate 静态校验]
+
+    Node3 -- 校验通过 --> Node4[04_simulation 平台回测]
+    Node3 -- 校验失败 & Attempt < 3 --> Node2
+
+    Node4 --> Node5[05_diagnosis 诊断自愈]
+    Node5 -- 自愈次数 < 5 & 未达标 --> Node2
+    Node5 -- 达到 Sharpe 阈值 --> Approved[Approved 策略上线]
+    Node5 -- 自愈次数 >= 5 & 未达标 --> BestK[BEST_K_BRANCH 候选留存]
 ```
 
 ### 节点说明
