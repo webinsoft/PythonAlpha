@@ -274,6 +274,43 @@ def make_request(
 
 
 # ---------------------------------------------------------------------------
+# Alpha detail fetch
+# ---------------------------------------------------------------------------
+
+def fetch_alpha(sm: SessionManager, alpha_id: str) -> dict:
+    """Fetch an alpha's full detail from the WQ Brain platform by ID.
+
+    Parameters
+    ----------
+    sm : SessionManager
+        Managed session.
+    alpha_id : str
+        The alpha ID (e.g. ``"Xg150eEb"``).
+
+    Returns
+    -------
+    dict
+        Alpha detail JSON. The ``regular.code`` field contains the expression
+        string (FastExpr or Python code).
+
+    Raises
+    ------
+    RuntimeError
+        If the alpha cannot be fetched after retries.
+    """
+    url = f"{BRAIN_API_URL}/alphas/{alpha_id}"
+    logger.info("Fetching alpha %s ...", alpha_id)
+    resp = make_request(sm, "GET", url)
+    if resp.status_code == 200:
+        alpha = resp.json()
+        logger.info("Alpha %s fetched successfully.", alpha_id)
+        return alpha
+    raise RuntimeError(
+        f"Failed to fetch alpha {alpha_id}: HTTP {resp.status_code} - {resp.text[:500]}"
+    )
+
+
+# ---------------------------------------------------------------------------
 # Simulation submission — dead-loop 429 retry
 # ---------------------------------------------------------------------------
 
